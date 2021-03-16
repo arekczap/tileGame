@@ -40,11 +40,11 @@ export default class Game extends EventEmmiter {
 
   buildGame() {
     this.grid = new Grid(this)
-    this.pipe = new Pipe(this)
+    // this.pipe = new Pipe(this)
+    //
+    //
+    // this.stage.addChild(this.grid)
 
-
-    this.stage.addChild(this.grid, this.pipe
-    )
   }
 
   update = () => {
