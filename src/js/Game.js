@@ -10,6 +10,8 @@ export default class Game extends EventEmmiter {
     this.canvas = null
     this.stage = null
     this.prepareCanvas()
+
+    this.images = {}
   }
 
   prepareCanvas() {
@@ -40,10 +42,10 @@ export default class Game extends EventEmmiter {
 
   buildGame() {
     this.grid = new Grid(this)
-
   }
 
   update = () => {
+
     this.stage.update()
     window.requestAnimationFrame(this.update)
   }
