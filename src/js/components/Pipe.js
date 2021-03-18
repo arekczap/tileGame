@@ -1,3 +1,5 @@
+import Preload from '../Preload'
+
 const createjs = window.createjs
 
 const neighborPositions = [
@@ -12,137 +14,123 @@ constructor(grid,row,column,code) {
     super()
     this.game = grid.game
     this.grid = grid
+
     this.row = row
     this.column = column
     this.code = code
-
-    this.regX = 30
-    this.regY = 30
-
-    window.shape = this
-
-
-    this.x = this.row * 60
-    this.y = this.column * 60
-
+    this.x = this.row * 60 + 30
+    this.y = this.column * 60 + 30
 
 
     this.game.stage.addChild(this)
+
     this.grid.on('pipeChanged', this.refreshPipe, this)
-}
 
-remove(pipeToRemove) {
-    this.grid.off('pipeChanged', this.refreshPipe, this)
-    // console.log(pipeToRemove)
+
 }
 
 
-
-checkNeighbors() {
-    return neighborPositions.reduce((code, {site, row, column}) => {
-        const neighborCode = (this.row + row) + 'x' + (this.column + column)
-        if (this.grid.data[neighborCode]) {
-            code += site
-        }
-        return code
-    }, '')
-}
+    removePipe() {
+        this.grid.off('pipeChanged', this.refreshPipe, this)
+        this.graphics
+            .clear()
+    }
+    checkNeighbors() {
+        return neighborPositions.reduce((code, {site, row, column}) => {
+            const neighborCode = (this.row + row) + 'x' + (this.column + column)
+            if (this.grid.data[neighborCode]) {
+                code += site
+            }
+            return code
+        }, '')
+    }
 
     refreshPipe(){
         const pipeCode = this.checkNeighbors()
-        this.drawPipe(this.graphics, pipeCode)
         this.angle = this.getPipeAngle(pipeCode)
+        this.drawPipe(this.graphics, pipeCode)
     }
 
     getPipeAngle(code){
-        return 30
+        switch (code) {
+            case 'wn':
+                return 0
+            case 'ne':
+            case 'ns':
+            case 'n':
+            case 's':
+            case 'wns':
+                return 90
+            case 'w':
+            case 'es':
+            case 'wne':
+                return  180
+            case 'ws':
+            case 'nes':
+                return 270
+            default:
+                return 0
+        }
     }
 
-
     drawPipe(graphics, code){
-
         graphics
             .clear()
             .beginStroke('black')
             .setStrokeStyle(4)
 
+        if(!code) code = 'wnes'
+        if(code ==='n' || code === 's') code = 'ns'
+        if(code === 'w' || code === 'e') code = 'we'
 
-        console.log(code)
+        this.set({rotation: this.angle})
 
-        switch (code.length) {
-            case 1:
-                graphics
-                    .moveTo(-30, 0)
-                    .lineTo(30, 0)
-
+        switch (code) {
+            case 'wes':
+            case 'nes':
+            case 'wns':
+            case 'wne':
+                this.drawTee()
                 return
-            case 2:
-
-
-
-
-
+            case 'es':
+            case 'ne':
+            case 'wn':
+            case 'ws':
+                this.drawElbow()
                 return
-            case 3:
-                console.log('trojnik')
+            case 'we':
+            case 'ns':
+                this.drawLine()
                 return
-            default:
-                console.log(this.x,this.y)
-
-
-                this.graphics.arc( 30,  30, 30, 0,  Math.PI/2)
-                    this.set({rotation:  90})
-
-
-
+            case 'wnes':
+                this.drawCross()
+                // this.addPipeImage('cross')
                 return
         }
     }
 
-
-
-
-// pipeShape(action , posX, posY, type = 'cross', site = 1) {
-//
-//
-//     action === 'add'
-//         ? this.graphics.beginStroke('black').setStrokeStyle(5)
-//         : this.graphics.beginStroke('white').setStrokeStyle(6)
-//
-//     switch (type) {
-//         case 'cross':
-//             this.graphics
-//                 .moveTo(posX + 29, posY)
-//                 .lineTo(posX - 29, posY)
-//                 .moveTo(posX, posY)
-//                 .lineTo(posX, posY + 29)
-//                 .moveTo(posX, posY)
-//                 .lineTo(posX, posY - 29)
-//             break
-//         case 'vertical':
-//             this.graphics
-
-//             break
-//         case 'horizontal':
-//             this.graphics.moveTo(posX, posY)
-//                 .lineTo(posX, posY + 30)
-//                 .moveTo(posX, posY)
-//                 .lineTo(posX, posY - 30)
-//             break
-//         case 'knee':
-//             if ( site  === 1) {
-//                 this.graphics.arc(posX - 30,  posY - 30, 30, 0 * Math.PI/180,  90 * Math.PI/180)
-//             } else if (site  === 2) {
-//                 this.graphics.arc(posX + 30,  posY - 30, 30, 90 * Math.PI/180,  180 * Math.PI/180)
-//             } else if (site  === 3) {
-//                 this.graphics.arc(posX + 30,  posY + 30, 30, 180 * Math.PI/180,  270 * Math.PI/180)
-//             } else {
-//                 this.graphics.arc(posX - 30,  posY + 30, 30, 270 * Math.PI/180,  360 * Math.PI/180)
-//             }
-//             break
-//     }
-// }
-
-
+    drawCross() {
+        this.graphics
+            .moveTo(-30, 0)
+            .lineTo(30, 0)
+            .moveTo(0, -30)
+            .lineTo(0, 30)
+    }
+    drawLine() {
+        this.graphics
+            .moveTo(-30, 0)
+            .lineTo(30, 0)
+    }
+    drawElbow() {
+        this.graphics
+            .arc( -30,  -30, 30, 0,  Math.PI/2)
+    }
+    drawTee() {
+        this.graphics
+            .moveTo(-30, 0)
+            .lineTo(30, 0)
+            .moveTo(0, 0)
+            .lineTo(0, 30)
+    }
 
 }

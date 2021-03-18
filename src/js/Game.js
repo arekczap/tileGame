@@ -1,7 +1,6 @@
 import EventEmmiter from 'eventemitter3'
 import Grid from './components/Grid'
-import Pipe from './components/Pipe'
-import CrossPipe from './components/Pipe'
+import Preload from './Preload'
 
 const createjs = window.createjs
 
@@ -30,20 +29,17 @@ export default class Game extends EventEmmiter {
       border: '3px solid black'
     })
 
-
+    new Preload(this)
     this.stage = new createjs.Stage(this.canvas)
+
     this.stage.enableMouseOver()
     createjs.Touch.enable(this.stage)
     this.update()
-    this.buildGame()
+
   }
 
   buildGame() {
     this.grid = new Grid(this)
-    // this.pipe = new Pipe(this)
-    //
-    //
-    // this.stage.addChild(this.grid)
 
   }
 

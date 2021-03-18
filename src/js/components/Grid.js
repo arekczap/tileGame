@@ -1,5 +1,6 @@
 import EventEmitter from 'eventemitter3'
 import Pipe from './Pipe'
+import Preload from '../Preload'
 const createjs = window.createjs
 
 export default class Grid extends EventEmitter{
@@ -41,19 +42,17 @@ export default class Grid extends EventEmitter{
   }
 
   clickedGrille(evt) {
-    const column = Math.floor(evt.stageY / this.distanceY)
-    const row = Math.floor(evt.stageX / this.distanceX)
-    const code = `${row}x${column}`
+    this.column = Math.floor(evt.stageY / this.distanceY)
+    this.row = Math.floor(evt.stageX / this.distanceX)
+    const code = `${this.row}x${this.column}`
 
     if (this.data[code]) {
       delete this.data[code]
-      const pipeToRemove = this.pipes[code]
-      this.pipe.remove(pipeToRemove)
+      this.pipes[code].removePipe()
       delete this.pipes[code]
     } else {
       this.data[code] = true
-      this.pipe = new Pipe(this, row, column, code)
-      this.pipes[code] = true
+      this.pipes[code] = new Pipe(this, this.row, this.column, code)
     }
     this.emit('pipeChanged')
   }
